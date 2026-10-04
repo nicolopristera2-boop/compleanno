@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>K Tvojim 18. Narodeninám ✨ List pre Teba</title>
+
+  <!-- 
+    ====================================================================
+    NÁVOD PRE GITHUB PAGES:
+    1. Vytvor si verejné úložisko (repository) na GitHub (napr. "18-narodeniny").
+    2. Nahraj tento súbor s názvom: index.html
+    3. Do rovnakého priečinka ako index.html nahraj svoje 3 fotky s názvami:
+       - foto1.jpg
+       - foto2.jpg
+       - foto3.jpg
+       (Ak ich nenahráš hneď, automaticky sa zobrazí romantická grafika
+        so zlatými a ružovými srdiečkami!).
+    4. Choď do Settings -> Pages -> Source: vyber "Deploy from a branch" (main/root) a ulož.
+    5. O minútu máš hotový odkaz, ktorý jej môžeš poslať cez WhatsApp alebo Instagram!
+    ====================================================================
+  -->
+
+  <!-- Google Fonts: Cormorant Garamond, Great Vibes, Plus Jakarta Sans, Caveat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --wax-red: #8b1526;
+      --wax-highlight: #d93d56;
+      --gold-foil: linear-gradient(135deg, #d4af37 0%, #fbf5b7 40%, #aa771c 100%);
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at 50% 18%, #fffaf5 0%, #faebe7 45%, #f4d3cd 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      perspective: 1400px;
+    }
+
+    .font-cormorant { font-family: 'Cormorant Garamond', Georgia, serif; }
+    .font-script { font-family: 'Great Vibes', cursive; }
+    .font-handwriting { font-family: 'Caveat', cursive; }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #faebe7; }
+    ::-webkit-scrollbar-thumb { background: #e3b0a6; border-radius: 999px; }
+
+    /* 3D Envelope Container */
+    .envelope-wrapper {
+      perspective: 1600px;
+      perspective-origin: center 40%;
+    }
+
+    .envelope-box {
+      position: relative;
+      width: 320px;
+      height: 220px;
+      background: #dfaea3;
+      border-radius: 14px;
+      box-shadow: 0 30px 65px rgba(150, 68, 83, 0.28), 0 10px 25px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.5s ease;
+    }
+
+    @media (min-width: 640px) {
+      .envelope-box {
+        width: 440px;
+        height: 290px;
+      }
+    }
+
+    .envelope-box:hover:not(.opened) {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 38px 75px rgba(150, 68, 83, 0.38);
+    }
+
+    /* Envelope Top Flap */
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 160px solid transparent;
+      border-right: 160px solid transparent;
+      border-top: 130px solid #d39f93;
+      transform-origin: top center;
+      transition: transform 0.85s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.2s 0.25s;
+      z-index: 5;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.12));
+    }
+
+    @media (min-width: 640px) {
+      .envelope-flap {
+        border-left-width: 220px;
+        border-right-width: 220px;
+        border-top-width: 170px;
+      }
+    }
+
+    .envelope-box.opened .envelope-flap {
+      transform: rotateX(180deg);
+      z-index: 1;
+      filter: drop-shadow(0 -4px 6px rgba(0, 0, 0, 0.05));
+    }
+
+    /* Wax Seal */
+    .wax-seal {
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 72px;
+      height: 72px;
+      background: radial-gradient(circle at 35% 35%, var(--wax-highlight), var(--wax-red) 75%);
+      border-radius: 50%;
+      box-shadow: 0 10px 22px rgba(110, 16, 28, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.5), inset 0 -3px 6px rgba(0,0,0,0.55);
+      z-index: 7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.5s ease, opacity 0.4s ease;
+    }
+
+    @media (min-width: 640px) {
+      .wax-seal {
+        top: 130px;
+        width: 82px;
+        height: 82px;
+      }
+    }
+
+    .envelope-box.opened .wax-seal {
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0.3) rotate(45deg);
+    }
+
+    /* Envelope Pockets */
+    .pocket-left {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-top: 110px solid transparent;
+      border-bottom: 110px solid transparent;
+      border-left: 160px solid #dca79b;
+      border-radius: 14px 0 0 14px;
+      z-index: 3;
+    }
+
+    .pocket-right {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-top: 110px solid transparent;
+      border-bottom: 110px solid transparent;
+      border-right: 160px solid #d6a195;
+      border-radius: 0 14px 14px 0;
+      z-index: 3;
+    }
+
+    .pocket-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 160px solid transparent;
+      border-right: 160px solid transparent;
+      border-bottom: 130px solid #cb968a;
+      border-radius: 0 0 14px 14px;
+      z-index: 4;
+    }
+
+    @media (min-width: 640px) {
+      .pocket-left {
+        border-top-width: 145px;
+        border-bottom-width: 145px;
+        border-left-width: 220px;
+      }
+      .pocket-right {
+        border-top-width: 145px;
+        border-bottom-width: 145px;
+        border-right-width: 220px;
+      }
+      .pocket-bottom {
+        border-left-width: 220px;
+        border-right-width: 220px;
+        border-bottom-width: 170px;
+      }
+    }
+
+    /* Peeker letter inside envelope */
+    .peeker-paper {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 86%;
+      height: 90%;
+      background: #fffdfa;
+      border-radius: 8px;
+      z-index: 2;
+      box-shadow: inset 0 0 12px rgba(214, 182, 168, 0.45);
+      transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .envelope-box.opened .peeker-paper {
+      transform: translate(-50%, -125px);
+    }
+
+    /* Parchment styling */
+    .parchment {
+      background: #fffdfb;
+      background-image: 
+        radial-gradient(#f3e3db 1px, transparent 1px),
+        radial-gradient(#faebe3 1px, #fffdfb 1px);
+      background-size: 24px 24px;
+      background-position: 0 0, 12px 12px;
+      box-shadow: 0 25px 70px rgba(165, 85, 95, 0.16), 0 4px 20px rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+    }
+
+    /* Floating ambient symbols */
+    .floating-symbol {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+      animation: floatUpward linear infinite;
+    }
+
+    @keyframes floatUpward {
+      0% { transform: translateY(105vh) scale(0.6) rotate(0deg); opacity: 0; }
+      15% { opacity: 0.55; }
+      80% { opacity: 0.55; }
+      100% { transform: translateY(-10vh) scale(1.1) rotate(360deg); opacity: 0; }
+    }
+
+    /* Candle and Flame Animations */
+    .flame-element {
+      transform-origin: center bottom;
+      animation: flameWiggle 0.14s ease-in-out infinite alternate;
+      transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    @keyframes flameWiggle {
+      0% { transform: scale(1) rotate(-2deg); opacity: 0.95; }
+      100% { transform: scale(1.15) rotate(2deg); opacity: 1; filter: drop-shadow(0 0 8px #f59e0b); }
+    }
+
+    .flame-element.blown {
+      opacity: 0;
+      transform: scale(0.1) translateY(-12px);
+      pointer-events: none;
+    }
+
+    .smoke-puff {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 6px;
+      height: 6px;
+      background: rgba(160, 160, 160, 0.7);
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .smoke-puff.active {
+      animation: smokeRise 0.85s ease-out forwards;
+    }
+
+    @keyframes smokeRise {
+      0% { opacity: 0.8; transform: translate(-50%, 0) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -26px) scale(3.8); filter: blur(2px); }
+    }
+
+    /* Washi Tape styling for Polaroids */
+    .washi-tape {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70px;
+      height: 22px;
+      background: rgba(254, 243, 199, 0.75);
+      border-left: 2px dashed rgba(217, 119, 6, 0.25);
+      border-right: 2px dashed rgba(217, 119, 6, 0.25);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+      backdrop-filter: blur(1px);
+      z-index: 10;
+    }
+  </style>
+</head>
+<body class="text-stone-800 antialiased selection:bg-rose-200">
+
+  <!-- Background Animated Elements -->
+  <div id="floating-symbols-container"></div>
+  <canvas id="ambient-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+  <!-- Top Navigation / Music Controller -->
+  <nav class="fixed top-4 right-4 sm:top-6 sm:right-6 z-50 flex items-center gap-2">
+    <button id="music-toggle-btn" 
+            onclick="toggleRomanticAudio()"
+            class="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-md border border-rose-200/90 rounded-full shadow-md text-stone-700 hover:text-rose-600 hover:bg-white text-xs sm:text-sm font-medium transition active:scale-95">
+      <span id="music-icon" class="text-base">🎵</span>
+      <span id="music-status">Hudba: Vypnutá</span>
+    </button>
+  </nav>
+
+  <!-- Main Viewport Content -->
+  <main id="main-content" class="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 transition-all duration-700">
+    
+    <!-- Introduction Header (Visible before opening) -->
+    <header id="welcome-heading" class="text-center mb-8 sm:mb-12 max-w-lg transition-all duration-700">
+      <span class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-rose-100/95 text-rose-700 text-xs tracking-widest font-semibold uppercase mb-3 shadow-xs">
+        <span>✨</span> Tvoje 18. Narodeniny <span>✨</span>
+      </span>
+      <h1 class="font-cormorant text-3xl sm:text-4xl text-stone-900 tracking-tight leading-snug font-bold">
+        Špeciálne prekvapenie pre Teba
+      </h1>
+      <p class="text-stone-600 text-sm sm:text-base mt-2 px-4">
+        Čaká tu na Teba tajný list zapečatený celým mojím srdcom. Dotkni sa obálky a otvor ju.
+      </p>
+    </header>
+
+    <!-- 3D Envelope Section -->
+    <section class="envelope-wrapper flex justify-center items-center">
+      <div id="envelope-elem" class="envelope-box" onclick="triggerLetterOpening()">
+        
+        <!-- Animated 3D Flap -->
+        <div class="envelope-flap"></div>
+
+        <!-- Wax Seal Button -->
+        <div class="wax-seal group">
+          <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full border border-amber-200/50 flex flex-col items-center justify-center text-amber-100 shadow-inner group-hover:scale-105 transition-transform">
+            <span class="text-lg sm:text-xl font-cormorant font-bold tracking-tight">18</span>
+            <span class="text-[9px] -mt-1 tracking-widest uppercase font-semibold text-rose-200">ROKOV</span>
+          </div>
+        </div>
+
+        <!-- Letter Peeker Paper inside envelope -->
+        <div class="peeker-paper">
+          <div class="w-10 h-1 bg-stone-300 rounded-full mb-3"></div>
+          <span class="font-script text-rose-500 text-2xl sm:text-3xl">Láska moja</span>
+          <p class="font-cormorant italic text-xs text-stone-400 mt-2 text-center">Nádherný životný míľnik, len pre Teba...</p>
+        </div>
+
+        <!-- Envelope Pockets -->
+        <div class="pocket-left"></div>
+        <div class="pocket-right"></div>
+        <div class="pocket-bottom"></div>
+
+      </div>
+    </section>
+
+    <!-- Tap Indicator -->
+    <div id="open-helper" class="mt-8 text-xs sm:text-sm text-stone-500 font-medium tracking-wide flex items-center gap-1.5 animate-pulse">
+      <span>💌</span> Dotkni sa pečate a otvor list <span>✨</span>
+    </div>
+
+    <!-- Letter Section (Revealed upon envelope opening) -->
+    <section id="opened-letter-section" class="hidden opacity-0 transform translate-y-12 transition-all duration-1000 max-w-2xl w-full my-8">
+      
+      <!-- The Parchment Letter -->
+      <article class="parchment rounded-3xl p-6 sm:p-12 relative shadow-2xl overflow-hidden">
+        
+        <!-- Vintage Corner Accents -->
+        <div class="absolute top-4 left-4 w-9 h-9 border-t-2 border-l-2 border-rose-300/80 rounded-tl-xl pointer-events-none"></div>
+        <div class="absolute top-4 right-4 w-9 h-9 border-t-2 border-r-2 border-rose-300/80 rounded-tr-xl pointer-events-none"></div>
+        <div class="absolute bottom-4 left-4 w-9 h-9 border-b-2 border-l-2 border-rose-300/80 rounded-bl-xl pointer-events-none"></div>
+        <div class="absolute bottom-4 right-4 w-9 h-9 border-b-2 border-r-2 border-rose-300/80 rounded-br-xl pointer-events-none"></div>
+
+        <!-- Header Ribbon Motif -->
+        <div class="text-center mb-8">
+          <span class="text-3xl text-rose-400 inline-block animate-pulse">❦</span>
+          <p class="font-script text-rose-600 text-3xl sm:text-5xl mt-1">Krásne 18. Narodeniny, Láska Moja</p>
+          <div class="w-32 h-0.5 bg-gradient-to-r from-transparent via-rose-300 to-transparent mx-auto mt-4"></div>
+        </div>
+
+        <!-- Heartfelt Romantic Letter Content in Slovak -->
+        <div class="space-y-6 text-stone-700 leading-relaxed text-base sm:text-lg font-cormorant font-normal text-justify">
+          <p class="first-letter:text-5xl first-letter:font-cormorant first-letter:font-bold first-letter:text-rose-600 first-letter:mr-2.5 first-letter:float-left first-letter:leading-none">
+            Ahoj láska moja, ako sa máš? Dúfam, že v tento výnimočný deň ide všetko skvele. Veľmi ma mrzí, že nemôžem byť s tebou. Úprimne, aj po tom, čo som ti povedal, že nemôžem prísť, som stále hľadal nejaké riešenie, ale bezúspešne, prepáč mi to.
+          </p>
+
+          <p>
+            Vieš… premýšľal som, že ti tento list napíšem v angličtine, pretože som si hovoril, že angličtina je momentálne náš spoločný jazyk, ktorým sa dorozumievame každý deň, a pritom ani jeden z nás angličtinu veľmi nemusí. No potom som si povedal… do kelu, ja to chcem napísať po slovensky! Ani náhodou nenapíšem mojej babycine po anglicky, hlavne preto, že toto má byť niečo výnimočné pre výnimočný deň mojej babyciny, takže to bude v slovenčine.
+          </p>
+
+          <p>
+            A teraz premýšľam aj nad tým, že keď toto čítaš, môj list… ešte asi nedorazil. Nevadí, prečítaš si ho, keď sa vrátiš z Hamburgu… Tešíš sa na cestu? Určite áno.
+          </p>
+
+          <p>
+            Chýbaš mi… strašne ťa potrebujem vidieť, byť pri tebe a všetko, čo k tomu patrí – objatia, pusy a všetko ostatné. No už čoskoro budeme v Budapešti, skvele sa zabavíme a budeme len ty a ja.
+          </p>
+
+          <p>
+            Doslova sme spolu prešli celú Európu, baby. Od Dublinu cez Slovensko, Chorvátsko až po Taliansko, a nabudúce to bude Budapešť. Všetko to bolo úžasné a ktovie, aká bude naša ďalšia spoločná destinácia.
+          </p>
+
+          <p>
+            Dobre, nechcem ti brať príliš veľa času, baby. Nico z budúcnosti ti už určite dáva kopu hlúpych otázok o tom, čo budeš dnes robiť, takže ťa tu nechcem zdržiavať dlhšie. Pokračuj v scrollovaní, čakajú ťa ďalšie prekvapenia. Všetko najlepšie k narodeninám, láska moja, uži si svoj deň. Uvidíme sa v Budapešti, aby sme spolu zažili ďalšie veľké dobrodružstvo.
+          </p>
+
+          <div class="pt-6 text-right space-y-1">
+            <p class="font-handwriting text-stone-900 text-2xl sm:text-3xl">Ľúbim ťa.</p>
+            <p class="font-handwriting text-rose-600 text-xl sm:text-2xl mt-1">Navždy tvoj Nicolò ❤️</p>
+          </div>
+        </div>
+
+        <!-- Polaroids Section with Washi Tape and Fallbacks -->
+        <div class="mt-14 pt-8 border-t border-rose-200/70">
+          <div class="text-center mb-8">
+            <h3 class="font-cormorant text-2xl sm:text-3xl text-stone-900 font-bold">
+              Naše Najkrajšie Chvíle 📸
+            </h3>
+            <p class="text-xs sm:text-sm text-stone-500 font-sans mt-0.5">Spomienky, ktoré v mojom srdci ostanú navždy</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-4 pt-2">
+            
+            <!-- Polaroid 1 (foto1.jpg) -->
+            <div class="bg-white p-3 pb-4 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 transform sm:-rotate-2 hover:rotate-0 hover:scale-105 border border-stone-200/80 relative">
+              <div class="washi-tape"></div>
+              <div class="aspect-square bg-rose-50/80 rounded-lg overflow-hidden flex items-center justify-center relative group">
+                <img id="polaroid-img-1" 
+                     src="foto1.jpg" 
+                     alt="Tvoj úsmev" 
+                     class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                     onerror="applyRomanticFallback(this, 'Tvoj Nádherný Úsmev ✨', '🌹')">
+              </div>
+              <p class="font-handwriting text-center text-stone-700 text-xl mt-3">Tvoj nádherný úsmev ✨</p>
+            </div>
+
+            <!-- Polaroid 2 (foto2.jpg) -->
+            <div class="bg-white p-3 pb-4 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 transform sm:rotate-2 hover:rotate-0 hover:scale-105 border border-stone-200/80 relative">
+              <div class="washi-tape"></div>
+              <div class="aspect-square bg-rose-50/80 rounded-lg overflow-hidden flex items-center justify-center relative group">
+                <img id="polaroid-img-2" 
+                     src="foto2.jpg" 
+                     alt="My dvaja spolu" 
+                     class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                     onerror="applyRomanticFallback(this, 'My Dvaja Spolu 💫', '💖')">
+              </div>
+              <p class="font-handwriting text-center text-stone-700 text-xl mt-3">Nezabudnuteľné chvíle 🌅</p>
+            </div>
+
+            <!-- Polaroid 3 (foto3.jpg) -->
+            <div class="bg-white p-3 pb-4 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 transform sm:-rotate-1 hover:rotate-0 hover:scale-105 border border-stone-200/80 relative">
+              <div class="washi-tape"></div>
+              <div class="aspect-square bg-rose-50/80 rounded-lg overflow-hidden flex items-center justify-center relative group">
+                <img id="polaroid-img-3" 
+                     src="foto3.jpg" 
+                     alt="18 Rokov" 
+                     class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                     onerror="applyRomanticFallback(this, 'Tvojich 18 Rokov 🥂', '✨')">
+              </div>
+              <p class="font-handwriting text-center text-stone-700 text-xl mt-3">Pripravení na budúcnosť 🥂</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 18 Candles Cake Section -->
+        <div class="mt-14 pt-8 border-t border-rose-200/70 text-center">
+          <span class="inline-block p-2.5 bg-rose-100 text-rose-600 rounded-full text-xl mb-2 shadow-xs">🎂</span>
+          <h3 class="font-cormorant text-2xl sm:text-3xl text-stone-900 font-bold">
+            Niečo si želaj!
+          </h3>
+          <p class="text-xs sm:text-sm text-stone-500 max-w-sm mx-auto mt-1 mb-6 font-sans">
+            Klikaj na sviečky a sfúkavaj ich jednu po druhej, alebo ich sfúkni všetky naraz!
+          </p>
+
+          <!-- 18 Candles Grid Box -->
+          <div class="bg-amber-50/70 p-6 rounded-2xl border border-amber-200/70 max-w-md mx-auto relative shadow-xs">
+            <div id="candles-grid" class="grid grid-cols-6 sm:grid-cols-9 gap-2 sm:gap-3 justify-items-center mb-6">
+              <!-- Dynamically populated via JS -->
+            </div>
+
+            <!-- Controls -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button id="blow-action-btn" 
+                      onclick="blowAllCandlesSequence()" 
+                      class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-medium rounded-full shadow-md hover:shadow-lg hover:from-rose-600 hover:to-pink-600 active:scale-95 transition text-sm flex items-center justify-center gap-2">
+                <span>💨</span> Sfúkni všetkých 18 sviečok (ostáva: <span id="candles-counter-label">18</span>)
+              </button>
+              <button onclick="resetAllCandles()" class="text-stone-500 hover:text-stone-800 text-xs px-3 py-1.5 underline decoration-dotted transition">
+                Znovu zapáliť
+              </button>
+            </div>
+
+            <!-- Congratulatory Banner in Slovak -->
+            <div id="wish-banner" class="hidden mt-5 p-4 bg-gradient-to-r from-rose-100 to-pink-100 border border-rose-300 rounded-2xl text-rose-900 text-sm font-medium animate-bounce shadow-sm">
+              ✨ Všetko najlepšie k 18. narodeninám! Nech sa Ti splní každé jedno tajné želanie a sen. Si to najkrajšie, čo ma v živote stretlo! 💖
+            </div>
+          </div>
+        </div>
+
+        <!-- Letter Footer Buttons -->
+        <div class="mt-14 pt-8 border-t border-rose-200/70 flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm">
+          <button onclick="foldLetterBack()" class="px-5 py-2.5 rounded-full border border-stone-300 hover:border-rose-400 text-stone-600 hover:text-rose-600 transition flex items-center gap-1.5 active:scale-95 bg-white/70">
+            <span>↺</span> Znovu zavrieť obálku
+          </button>
+          <button onclick="window.print()" class="px-5 py-2.5 rounded-full bg-rose-600 text-white font-medium shadow-md hover:bg-rose-700 transition flex items-center gap-1.5 active:scale-95">
+            <span>💌</span> Vytlačiť alebo Uložiť ako PDF
+          </button>
+        </div>
+
+      </article>
+
+      <footer class="text-center text-stone-400 text-xs mt-6 mb-12 font-sans">
+        Vytvorené s láskou k Tvojim 18. Narodeninám ✨
+      </footer>
+
+    </section>
+
+  </main>
+
+  <script>
+    // --- Elegant Romantic SVG Fallback for Photos (Slovak text) ---
+    function applyRomanticFallback(imgElement, label, emoji) {
+      imgElement.onerror = null; // Prevent loop
+      const svgFallback = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+          <defs>
+            <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#fff1f2" />
+              <stop offset="50%" stop-color="#ffe4e6" />
+              <stop offset="100%" stop-color="#fecdd3" />
+            </linearGradient>
+            <radialGradient id="heartGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#fda4af" stop-opacity="0.6"/>
+              <stop offset="100%" stop-color="#fda4af" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="400" height="400" fill="url(#bgGrad)" />
+          <circle cx="200" cy="180" r="90" fill="url(#heartGlow)" />
+          <rect x="20" y="20" width="360" height="360" rx="12" fill="none" stroke="#d4af37" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.6" />
+          <text x="200" y="170" font-size="52" text-anchor="middle" dominant-baseline="middle">${emoji}</text>
+          <text x="200" y="225" font-family="'Cormorant Garamond', Georgia, serif" font-weight="bold" font-size="20" fill="#9f1239" text-anchor="middle">${label}</text>
+          <text x="200" y="250" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" fill="#be123c" text-anchor="middle" letter-spacing="1">NAHRAJ FOTKU NA GITHUB</text>
+        </svg>
+      `;
+      imgElement.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgFallback);
+    }
+
+    // --- Web Audio Romantic Chimes Synthesizer ---
+    let audioCtx = null;
+    let isPlayingAudio = false;
+    let audioLoopTimer = null;
+
+    const romanticChords = [
+      [261.63, 329.63, 392.00, 523.25], // C Major
+      [220.00, 261.63, 329.63, 440.00], // A Minor
+      [174.61, 220.00, 261.63, 349.23], // F Major
+      [196.00, 246.94, 293.66, 392.00]  // G Major
+    ];
+
+    function playTone(frequency, duration = 2.0, type = 'sine', gainLevel = 0.05) {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+
+        gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(gainLevel, audioCtx.currentTime + 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        console.warn("Audio Context init pending user interaction", e);
+      }
+    }
+
+    function toggleRomanticAudio() {
+      const statusLabel = document.getElementById('music-status');
+      const icon = document.getElementById('music-icon');
+
+      if (!isPlayingAudio) {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        isPlayingAudio = true;
+        statusLabel.textContent = "Hudba: Zapnutá";
+        icon.textContent = "🎶";
+
+        let chordIndex = 0;
+        let noteInChord = 0;
+
+        audioLoopTimer = setInterval(() => {
+          const currentChord = romanticChords[chordIndex % romanticChords.length];
+          const noteFreq = currentChord[noteInChord % currentChord.length];
+
+          playTone(noteFreq, 2.8, 'sine', 0.04);
+
+          if (noteInChord === 0) {
+            playTone(noteFreq * 2, 3.2, 'triangle', 0.02);
+          }
+
+          noteInChord++;
+          if (noteInChord >= currentChord.length) {
+            noteInChord = 0;
+            chordIndex++;
+          }
+        }, 750);
+      } else {
+        isPlayingAudio = false;
+        clearInterval(audioLoopTimer);
+        statusLabel.textContent = "Hudba: Vypnutá";
+        icon.textContent = "🎵";
+      }
+    }
+
+    // --- Envelope Interaction ---
+    let isEnvelopeOpen = false;
+
+    function triggerLetterOpening() {
+      if (isEnvelopeOpen) return;
+      isEnvelopeOpen = true;
+
+      // Start music automatically on opening
+      if (!isPlayingAudio) {
+        toggleRomanticAudio();
+      }
+
+      const envelopeElem = document.getElementById('envelope-elem');
+      const welcomeHeading = document.getElementById('welcome-heading');
+      const openHelper = document.getElementById('open-helper');
+      const letterSection = document.getElementById('opened-letter-section');
+
+      // 3D Flap opening
+      envelopeElem.classList.add('opened');
+      openHelper.style.opacity = '0';
+
+      // Confetti burst
+      launchConfettiStream();
+
+      // Sound chime on seal opening
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+        setTimeout(() => playTone(freq, 2.2, 'triangle', 0.06), idx * 160);
+      });
+
+      // Smooth transition to full letter
+      setTimeout(() => {
+        welcomeHeading.classList.add('opacity-0', '-translate-y-6');
+        setTimeout(() => welcomeHeading.classList.add('hidden'), 500);
+
+        letterSection.classList.remove('hidden');
+        setTimeout(() => {
+          letterSection.classList.remove('opacity-0', 'translate-y-12');
+          letterSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 60);
+      }, 900);
+    }
+
+    function foldLetterBack() {
+      const envelopeElem = document.getElementById('envelope-elem');
+      const welcomeHeading = document.getElementById('welcome-heading');
+      const openHelper = document.getElementById('open-helper');
+      const letterSection = document.getElementById('opened-letter-section');
+
+      letterSection.classList.add('opacity-0', 'translate-y-12');
+      setTimeout(() => {
+        letterSection.classList.add('hidden');
+        envelopeElem.classList.remove('opened');
+        welcomeHeading.classList.remove('hidden');
+        
+        setTimeout(() => {
+          welcomeHeading.classList.remove('opacity-0', '-translate-y-6');
+          openHelper.style.opacity = '1';
+          isEnvelopeOpen = false;
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 80);
+      }, 500);
+    }
+
+    function launchConfettiStream() {
+      const count = 180;
+      const opts = {
+        origin: { y: 0.65 },
+        colors: ['#f43f5e', '#fb7185', '#fda4af', '#f59e0b', '#fbbf24', '#ffffff']
+      };
+
+      function fire(particleRatio, conf) {
+        confetti(Object.assign({}, opts, conf, {
+          particleCount: Math.floor(count * particleRatio)
+        }));
+      }
+
+      fire(0.25, { spread: 26, startVelocity: 55 });
+      fire(0.2, { spread: 60 });
+      fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+      fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+      fire(0.1, { spread: 120, startVelocity: 45 });
+    }
+
+    // --- Interactive 18 Candles ---
+    const CANDLE_COUNT = 18;
+    let extinguishedCount = 0;
+
+    function initCandles() {
+      const grid = document.getElementById('candles-grid');
+      grid.innerHTML = '';
+      extinguishedCount = 0;
+      updateCandlesLabel();
+
+      for (let i = 1; i <= CANDLE_COUNT; i++) {
+        const item = document.createElement('button');
+        item.className = 'flex flex-col items-center cursor-pointer p-1 group transition transform hover:scale-110 relative';
+        item.title = `Sviečka ${i}`;
+        item.onclick = () => extinguishCandle(item, i);
+
+        item.innerHTML = `
+          <div class="smoke-puff"></div>
+          <div class="flame-element w-2.5 h-4 sm:w-3 sm:h-5 bg-gradient-to-t from-amber-500 via-amber-300 to-yellow-100 rounded-full"></div>
+          <div class="w-0.5 h-1.5 bg-stone-700"></div>
+          <div class="w-3 sm:w-3.5 h-8 sm:h-10 bg-gradient-to-r from-rose-200 via-rose-100 to-rose-300 rounded-t-sm shadow-xs border-x border-rose-300/40 flex items-center justify-center">
+            <span class="text-[7px] text-rose-500 font-bold">${i}</span>
+          </div>
+        `;
+
+        grid.appendChild(item);
+      }
+    }
+
+    function extinguishCandle(itemBtn, idx) {
+      const flame = itemBtn.querySelector('.flame-element');
+      const smoke = itemBtn.querySelector('.smoke-puff');
+
+      if (flame && !flame.classList.contains('blown')) {
+        flame.classList.add('blown');
+        if (smoke) {
+          smoke.classList.add('active');
+        }
+        extinguishedCount++;
+        playTone(380 + idx * 30, 0.35, 'triangle', 0.05);
+        updateCandlesLabel();
+
+        if (extinguishedCount === CANDLE_COUNT) {
+          onAllCandlesExtinguished();
+        }
+      }
+    }
+
+    function blowAllCandlesSequence() {
+      const items = document.querySelectorAll('#candles-grid button');
+      let delay = 0;
+
+      items.forEach((itemBtn, idx) => {
+        const flame = itemBtn.querySelector('.flame-element');
+        if (flame && !flame.classList.contains('blown')) {
+          setTimeout(() => {
+            extinguishCandle(itemBtn, idx + 1);
+          }, delay);
+          delay += 60;
+        }
+      });
+    }
+
+    function resetAllCandles() {
+      document.getElementById('wish-banner').classList.add('hidden');
+      initCandles();
+    }
+
+    function updateCandlesLabel() {
+      const label = document.getElementById('candles-counter-label');
+      if (label) {
+        label.textContent = CANDLE_COUNT - extinguishedCount;
+      }
+    }
+
+    function onAllCandlesExtinguished() {
+      const wishBanner = document.getElementById('wish-banner');
+      wishBanner.classList.remove('hidden');
+      launchConfettiStream();
+
+      [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
+        setTimeout(() => playTone(freq, 2.5, 'sine', 0.07), idx * 140);
+      });
+    }
+
+    // --- Floating Symbols (Hearts, 18, Flowers) ---
+    function initFloatingSymbols() {
+      const container = document.getElementById('floating-symbols-container');
+      const icons = ['✨', '💖', '🤍', '🌸', '💫', '🌹', '18'];
+
+      for (let i = 0; i < 20; i++) {
+        const span = document.createElement('span');
+        span.className = 'floating-symbol select-none';
+        span.textContent = icons[Math.floor(Math.random() * icons.length)];
+        span.style.left = `${Math.random() * 96}vw`;
+        span.style.animationDuration = `${8 + Math.random() * 9}s`;
+        span.style.animationDelay = `${Math.random() * 6}s`;
+        span.style.fontSize = `${13 + Math.random() * 16}px`;
+        container.appendChild(span);
+      }
+    }
+
+    // --- Ambient Sparkle Canvas Animation ---
+    function initAmbientSparkles() {
+      const canvas = document.getElementById('ambient-canvas');
+      const ctx = canvas.getContext('2d');
+      let w = canvas.width = window.innerWidth;
+      let h = canvas.height = window.innerHeight;
+
+      window.addEventListener('resize', () => {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      });
+
+      const sparkles = Array.from({ length: 42 }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        radius: Math.random() * 2 + 0.8,
+        alpha: Math.random(),
+        speed: Math.random() * 0.015 + 0.006,
+        direction: Math.random() > 0.5 ? 1 : -1
+      }));
+
+      function render() {
+        ctx.clearRect(0, 0, w, h);
+
+        sparkles.forEach(s => {
+          s.alpha += s.speed * s.direction;
+          if (s.alpha >= 0.85) s.direction = -1;
+          if (s.alpha <= 0.08) s.direction = 1;
+
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(244, 180, 190, ${s.alpha})`;
+          ctx.shadowBlur = 6;
+          ctx.shadowColor = '#fbcfe8';
+          ctx.fill();
+        });
+
+        requestAnimationFrame(render);
+      }
+      render();
+    }
+
+    // Initialize application on load
+    window.addEventListener('DOMContentLoaded', () => {
+      initFloatingSymbols();
+      initAmbientSparkles();
+      initCandles();
+    });
+  </script>
+</body>
+</html>
